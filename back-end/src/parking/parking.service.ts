@@ -1,0 +1,41 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Parking } from './entities/parking.entity';
+
+@Injectable()
+export class ParkingService {
+  constructor(
+    @InjectRepository(Parking)
+    private parkingRepository: Repository<Parking>,
+  ) {}
+
+  findAll(): Promise<Parking[]> {
+    return this.parkingRepository.find({ relations: ['tickets'] });
+  }
+
+  findOne(id: number): Promise<Parking> {
+    return this.parkingRepository.findOne({
+      where: { id },
+      relations: ['tickets'],
+    });
+  }
+
+  async create(spotNumber: number): Promise<Parking> {
+    const newSpot = this.parkingRepository.create({
+      spotNumber,
+      isOccupied: false,
+    });
+    return this.parkingRepository.save(newSpot);
+  }
+
+  async update(id: number, isOccupied: boolean): Promise<Parking> {
+    const spot = await this.parkingRepository.findOneBy({ id });
+    spot.isOccupied = isOccupied;
+    return this.parkingRepository.save(spot);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.parkingRepository.delete(id);
+  }
+}
