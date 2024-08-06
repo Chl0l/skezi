@@ -9,17 +9,13 @@ export class TicketController {
   async create(
     @Body()
     body: {
-      spotNumber: number;
+      spotId: number;
       customerName: string;
       customerPlateNumber: string;
     },
   ) {
-    const { spotNumber, customerName, customerPlateNumber } = body;
-    return this.ticketService.create(
-      spotNumber,
-      customerName,
-      customerPlateNumber,
-    );
+    const { spotId, customerName, customerPlateNumber } = body;
+    return this.ticketService.create(spotId, customerName, customerPlateNumber);
   }
 
   @Get()
@@ -33,7 +29,14 @@ export class TicketController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.ticketService.remove(id);
+  async remove(
+    @Param('id') id: number,
+    @Body() body: { customerName: string; customerPlateNumber: string },
+  ) {
+    return this.ticketService.remove(
+      id,
+      body.customerName,
+      body.customerPlateNumber,
+    );
   }
 }

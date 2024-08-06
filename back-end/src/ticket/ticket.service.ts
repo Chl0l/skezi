@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Parking } from 'src/parking/entities/parking.entity';
@@ -14,13 +18,17 @@ export class TicketService {
   ) {}
 
   async create(
-    spotNumber: number,
+    spotId: number,
     customerName: string,
     customerPlateNumber: string,
   ): Promise<Ticket> {
-    const parkingSpot = await this.parkingRepository.findOneBy({ spotNumber });
+    const parkingSpot = await this.parkingRepository.findOneBy({ id: spotId });
     if (!parkingSpot || parkingSpot.isOccupied) {
       throw new Error('Parking spot not available');
+    }
+
+    if (!parkingSpot) {
+      throw new NotFoundException('Parking spot not found');
     }
 
     if (parkingSpot.isOccupied) {
@@ -51,16 +59,31 @@ export class TicketService {
     });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(
+    id: number,
+    customerName: string,
+    customerPlateNumber: string,
+  ): Promise<void> {
     const ticket = await this.ticketRepository.findOne({
       where: { id },
       relations: ['parkingSpot'],
     });
-    if (ticket) {
+
+    if (!ticket) {
+      throw new NotFoundException('Ticket not found');
+    }
+
+    if (
+      ticket.customerName === customerName &&
+      ticket.customerPlateNumber === customerPlateNumber
+    ) {
       const parkingSpot = ticket.parkingSpot;
       parkingSpot.isOccupied = false;
+
       await this.parkingRepository.save(parkingSpot);
       await this.ticketRepository.delete(id);
+    } else {
+      throw new BadRequestException('Invalid reservation details');
     }
   }
 }
