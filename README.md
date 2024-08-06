@@ -22,4 +22,3 @@ In frontend folder:
 npm run start
 ```
 
-These types can then be used in Apollo queries and mutations.
