@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ParkingModule } from './parking/parking.module';
 import { TicketModule } from './ticket/ticket.module';
+import { ParkingService } from './parking/parking.service';
 
 @Module({
   imports: [
@@ -28,4 +29,10 @@ import { TicketModule } from './ticket/ticket.module';
     TicketModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private readonly parkingService: ParkingService) {}
+
+  async onModuleInit() {
+    await this.parkingService.initializeParkingSpots();
+  }
+}

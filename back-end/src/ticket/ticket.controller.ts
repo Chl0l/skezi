@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Param, Delete, Body } from '@nestjs/common';
 import { TicketService } from './ticket.service';
+import { CreateTicketDto } from './create-ticket.dto';
 
 @Controller('tickets')
 export class TicketController {
@@ -8,13 +9,9 @@ export class TicketController {
   @Post()
   async create(
     @Body()
-    body: {
-      spotId: number;
-      customerName: string;
-      customerPlateNumber: string;
-    },
+    createTicketDto: CreateTicketDto,
   ) {
-    const { spotId, customerName, customerPlateNumber } = body;
+    const { spotId, customerName, customerPlateNumber } = createTicketDto;
     return this.ticketService.create(spotId, customerName, customerPlateNumber);
   }
 

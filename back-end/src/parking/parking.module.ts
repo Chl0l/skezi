@@ -9,5 +9,6 @@ import { Ticket } from 'src/ticket/entities/ticket.entity';
   imports: [TypeOrmModule.forFeature([Parking, Ticket])],
   providers: [ParkingService],
   controllers: [ParkingController],
+  exports: [ParkingService],
 })
 export class ParkingModule {}

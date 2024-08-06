@@ -38,4 +38,17 @@ export class ParkingService {
   async remove(id: number): Promise<void> {
     await this.parkingRepository.delete(id);
   }
+
+  async initializeParkingSpots(): Promise<void> {
+    const count = await this.parkingRepository.count();
+    if (count === 0) {
+      const parkingSpots = [];
+      for (let i = 1; i <= 36; i++) {
+        parkingSpots.push(
+          this.parkingRepository.create({ spotNumber: i, isOccupied: false }),
+        );
+      }
+      await this.parkingRepository.save(parkingSpots);
+    }
+  }
 }
